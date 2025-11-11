@@ -13,8 +13,10 @@ A minimal, fast, and feature-rich logging library for Node.js.
 - **Multiple Transports**: Log to the console, files, or create your own custom transports.
 - **Customizable Formatting**: Choose between simple text or structured JSON logging.
 - **Dynamic Log Levels**: Change the log level at runtime.
+- **Customizable Prefix**: Add a custom prefix to all your log messages.
+- **Optional Timestamps**: Enable or disable timestamps in your logs.
 - **File Rotation**: Automatically rotate log files based on size.
-- **TypeScript Support**: Written in TypeScript with type definitions included.
+- **TypeScript Support**: Written in TypeScript.
 
 ## Installation
 
@@ -35,10 +37,10 @@ const logger = new Logger({
     { type: 'console' },
     { type: 'file', options: { path: './logs/app.log' } },
   ],
+  prefix: '[My-App]',
+  timestamp: true,
 });
-```
 
-```typescript
 // Log messages
 logger.info('Server started on port 3000');
 logger.warn('Low disk space');
@@ -46,6 +48,7 @@ logger.error('Failed to connect to database', { code: 500 });
 logger.debug('This is a debug message');
 logger.silent('This message will not be logged');
 logger.boring('This message will be logged but not colored');
+```
 
 ## License
 

@@ -1,13 +1,13 @@
-tini-log
+# dd-tinylog
 
-This guide will walk you through the basics of using `tini-log` in your Node.js application.
+This guide will walk you through the basics of using `dd-tinylog` in your Node.js application.
 
 ## Installation
 
 First, install the library using npm:
 
 ```bash
-npm install tini-log
+npm install dd-tinylog
 ```
 
 ## Basic Usage
@@ -46,6 +46,8 @@ const logger = new Logger({
     { type: 'file', options: { path: './logs/app.log' } },
   ],
   timestampFormat: 'YYYY-MM-DD HH:mm:ss',
+  prefix: '[My-App]', // Add a custom prefix
+  timestamp: true, // Enable timestamp
 });
 ```
 
@@ -56,6 +58,8 @@ const logger = new Logger({
 - `json` (`boolean`, default: `false`): Whether to format logs as JSON.
 - `transports` (`TransportOptions[]`, default: `[{ type: 'console' }]`): An array of transports to use for logging.
 - `timestampFormat` (`string`, default: `'YYYY-MM-DD HH:mm:ss'`): The format for timestamps in the log messages.
+- `prefix` (`string`, default: `''`): A prefix to add to all log messages.
+- `timestamp` (`boolean`, default: `false`): Whether to include a timestamp in the log output.
 
 ### Timestamp Format
 

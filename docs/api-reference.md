@@ -19,6 +19,8 @@ Creates a new logger instance.
   - `json` (`boolean`, default: `false`): Whether to format logs as JSON.
   - `transports` (`TransportOptions[]`, default: `[{ type: 'console' }]`): An array of transports to use.
   - `timestampFormat` (`string`, default: `'YYYY-MM-DD HH:mm:ss'`): The format for timestamps.
+  - `prefix` (`string`, default: `''`): A prefix to add to all log messages.
+  - `timestamp` (`boolean`, default: `false`): Whether to include a timestamp in the log output.
 
 ### `Logger.global`
 
@@ -48,13 +50,15 @@ Logs a message with the `warn` level.
 
 Logs a message with the `error` level.
 
-#### `setLevel(level: LogLevel)`
+#### `silent(message: string, metadata?: Record<string, any>)`
 
-Logs a message with the `silent` level.
+Logs a message with the `silent` level. Note: silent messages are not written to any transport.
 
-#### `setLevel(level: LogLevel)`
+#### `boring(message: string, metadata?: Record<string, any>)`
 
 Logs a message with the `boring` level.
+
+#### `setLevel(level: LogLevel)`
 
 Changes the minimum log level at runtime.
 
