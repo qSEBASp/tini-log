@@ -67,11 +67,9 @@ const logger = new Logger({
 You can create your own custom transports by implementing the `Transport` interface.
 
 ```typescript
-import { Transport } from 'dd-tinylog';
-import { LogData } from 'dd-tinylog/dist/core/Logger';
-import { Formatter } from 'dd-tinylog/dist/core/Formatter';
+import { Transport, LogData, Formatter } from 'dd-tinylog';
 // CommonJS
-const { FileTransport } = require('dd-tinylog');
+const { FileTransport, } = require('dd-tinylog');
 
 class MyCustomTransport implements Transport {
   write(data: LogData, formatter: Formatter): void {

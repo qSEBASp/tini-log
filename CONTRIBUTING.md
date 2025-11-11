@@ -55,7 +55,7 @@ teeny-logger/
 │   └── index.ts                   # Entry point that exports Logger and setup
 │
 ├── tests/
-│   ├── Logger.test.ts             # Unit tests for the core logger
+│   ├── src/core/Logger.test.ts             # Unit tests for the core logger
 │   ├── ConsoleTransport.test.ts   # Tests for console logging
 │   └── FileTransport.test.ts      # Tests for file logging
 │

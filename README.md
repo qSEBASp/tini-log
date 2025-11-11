@@ -1,6 +1,6 @@
 # dd-tinylog
 
-[![npm version](https://badge.fury.io/js/teeny-logger.svg)](https://badge.fury.io/js/dd-tinylog)
+[![npm version](https://badge.fury.io/js/dd-tinylog.svg)](https://badge.fury.io/js/dd-tinylog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A minimal, fast, and feature-rich logging library for Node.js.
@@ -53,6 +53,31 @@ logger.silent('This message will not be logged');
 logger.boring('This message will be logged but not colored');
 ```
 
+## Child Loggers
+
+Child loggers allow you to create new logger instances that inherit settings from a parent logger and can add their own specific context. This is useful for organizing logs by specific components, requests, or user sessions.
+
+```typescript
+// Create a child logger for a specific request
+const requestLogger = logger.createChild({
+  prefix: '[Request-123]',
+  context: { requestId: 'req-123', userId: 'user-abc' },
+});
+
+requestLogger.info('Processing incoming request');
+requestLogger.debug('Request payload', { data: { key: 'value' } });
+requestLogger.error('Failed to process request', { error: 'timeout' });
+
+// Another child logger for a different part of the application
+const dbLogger = logger.createChild({
+  prefix: '[Database]',
+  level: 'debug', // Child logger can override parent's level
+});
+
+dbLogger.debug('Connecting to database...');
+dbLogger.info('Query executed successfully');
+```
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](/LICENSE) file for details.
@@ -73,7 +98,6 @@ This project is licensed under the MIT License. See the [LICENSE](/LICENSE) file
 
 We’re working on several new features and enhancements for `dd-tinylog`:
 
-* **Child Loggers** – Create sub-loggers that inherit settings from the main logger but can add their own tags (e.g., a user ID). This helps organize and filter logs by component.
 * **Asynchronous Transports** – Write logs in the background to prevent blocking the main application, improving performance under heavy logging.
 * **Custom Log Levels** – Define your own log levels beyond the built-in ones like `info` or `error`.
 * **Performance Optimizations** – Further reduce overhead and improve log throughput.

@@ -17,10 +17,12 @@ Creates a new logger instance.
   - `level` (`LogLevel`, default: `'info'`): The minimum log level to output.
   - `colorize` (`boolean`, default: `true`): Whether to colorize the console output.
   - `json` (`boolean`, default: `false`): Whether to format logs as JSON.
-  - `transports` (`TransportOptions[]`, default: `[{ type: 'console' }]`): An array of transports to use.
+  - `transports` (`TransportOptions[]`, default: `[]`): An array of transports to use.
   - `timestampFormat` (`string`, default: `'YYYY-MM-DD HH:mm:ss'`): The format for timestamps.
   - `prefix` (`string`, default: `''`): A prefix to add to all log messages.
   - `timestamp` (`boolean`, default: `false`): Whether to include a timestamp in the log output.
+  - `context` (`Record<string, any>`, optional): An object containing key-value pairs to be merged into all log metadata.
+  - `parent` (`Logger`, internal): Used internally when creating child loggers. Do not set manually.
 
 ### `Logger.global`
 
@@ -36,6 +38,26 @@ Logger.global.info('This is a global log message.');
 ```
 
 ### Methods
+
+#### `createChild(options?: LoggerOptions)`
+
+Creates a new child logger instance that inherits settings from the current logger. The child logger can override parent settings and add its own context.
+
+**Parameters:**
+
+- `options` (`LoggerOptions`, optional): Configuration options for the child logger. These options will override the parent's settings if provided.
+
+**Returns:**
+
+- (`Logger`): A new child logger instance.
+
+```typescript
+const childLogger = logger.createChild({
+  prefix: '[Child]',
+  context: { userId: 123 },
+});
+childLogger.info('Message from child logger');
+```
 
 #### `debug(message: string, metadata?: Record<string, any>)`
 

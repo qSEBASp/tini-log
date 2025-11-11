@@ -102,3 +102,48 @@ prefixedLogger.warn('Database connection is slow.');
 [2025-11-11 10:30:00] INFO - [My-Service] User activity detected.
 [2025-11-11 10:30:01] WARN - [My-Service] Database connection is slow.
 ```
+
+## Child Loggers
+
+Child loggers allow you to create new logger instances that inherit settings from a parent logger and can add their own specific context. This is useful for organizing logs by specific components, requests, or user sessions.
+
+```typescript
+import { Logger } from 'dd-tinylog';
+// CommonJS
+const { Logger } = require('dd-tinylog');
+
+const mainLogger = new Logger({
+  level: 'info',
+  prefix: '[APP]',
+  context: { appVersion: '1.0.0' },
+});
+
+mainLogger.info('Application started.');
+
+// Create a child logger for a specific request
+const requestLogger = mainLogger.createChild({
+  prefix: '[Request-XYZ]',
+  context: { requestId: 'req-XYZ', userId: 'user-123' },
+});
+
+requestLogger.info('Processing incoming request.');
+requestLogger.debug('Request payload received.', { data: { key: 'value' } }); // This debug message will not be shown if mainLogger's level is 'info'
+
+// Create another child logger for a database operation
+const dbLogger = mainLogger.createChild({
+  prefix: '[DB]',
+  level: 'debug', // Override parent's level to see debug messages for DB operations
+});
+
+dbLogger.debug('Connecting to database...');
+dbLogger.info('Query executed successfully.');
+```
+
+**Output (example, assuming mainLogger level is 'info'):**
+
+```
+[2025-11-11 10:30:02] INFO - [APP] Application started.
+[2025-11-11 10:30:03] INFO - [Request-XYZ] Processing incoming request.
+[2025-11-11 10:30:04] DEBUG - [DB] Connecting to database...
+[2025-11-11 10:30:05] INFO - [DB] Query executed successfully.
+```

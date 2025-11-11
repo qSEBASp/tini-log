@@ -60,7 +60,7 @@ const logger = new Logger({
 - `level` (`LogLevel`, default: `'info'`): The minimum log level to output. Possible values are `'debug'`, `'info'`, `'warn'`, and `'error'`.
 - `colorize` (`boolean`, default: `true`): Whether to colorize the console output.
 - `json` (`boolean`, default: `false`): Whether to format logs as JSON.
-- `transports` (`TransportOptions[]`, default: `[{ type: 'console' }]`): An array of transports to use for logging.
+- `transports` (`TransportOptions[]`, default: `[]`): An array of transports to use for logging.
 - `timestampFormat` (`string`, default: `'YYYY-MM-DD HH:mm:ss'`): The format for timestamps in the log messages.
 - `prefix` (`string`, default: `''`): A prefix to add to all log messages.
 - `timestamp` (`boolean`, default: `false`): Whether to include a timestamp in the log output.
