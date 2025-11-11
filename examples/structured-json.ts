@@ -1,6 +1,6 @@
 import { Logger } from "../src";
 
-// Create a logger instance for JSON structured logging
+// create a logger instance for JSON structured logs
 const jsonLogger = new Logger({
   level: "debug",
   json: true,
@@ -10,7 +10,7 @@ const jsonLogger = new Logger({
   ],
 });
 
-// Log structured data as JSON
+// Log can structure data as JSON
 jsonLogger.info("User action", {
   userId: 12345,
   action: "login",
