@@ -1,5 +1,7 @@
 <div align="center">
 
+<a id="top"></a>
+
 # 📝 dd-tinylog
 
 ### ⚡ The Ultimate Minimal Logging Solution for Node.js
@@ -46,25 +48,25 @@
 ## 📦 Installation
 
 ```bash
-npm install tini-log
+npm install dd-tinylog
 ```
 
 <details>
 <summary>📋 Other Package Managers</summary>
 ```bash
 # Using Yarn
-yarn add tini-log
+yarn add dd-tinylog
 # Using pnpm
-pnpm add tini-log
+pnpm add dd-tinylog
 # Using bun
-bun add tini-log
+bun add dd-tinylog
 ```
 </details>
 
 ### 🚀 Quick Start
 
 ```js
-import Logger from "tini-log";
+import Logger from "dd-tinylog";
 
 const logger = new Logger({
   level: "info",
@@ -325,7 +327,7 @@ logger.info("User login", {
 
 ```javascript
 import express from 'express';
-import Logger from 'tini-log';
+import Logger from 'dd-tinylog';
 
 const app = express();
 const logger = new Logger({ prefix: '[API]' });
@@ -352,7 +354,7 @@ app.listen(3000, () => {
 ### ⚡ Serverless Functions
 
 ```javascript
-import Logger from 'tini-log';
+import Logger from 'dd-tinylog';
 
 const logger = new Logger({
   level: 'info',
@@ -389,7 +391,7 @@ export async function handler(event) {
 ### 🔧 CLI Applications
 
 ```javascript
-import Logger from 'tini-log';
+import Logger from 'dd-tinylog';
 
 const logger = new Logger({
   colorize: true,
@@ -419,7 +421,7 @@ async function buildProject() {
 ### 🏗️ Microservices
 
 ```javascript
-import Logger from 'tini-log';
+import Logger from 'dd-tinylog';
 
 // Create service-specific loggers
 const userService = new Logger({
@@ -485,7 +487,7 @@ orderService.info('Order placed');
 ## 📦 Installation
 
 ```bash
-npm install tini-log
+npm install dd-tinylog
 ```
 ## 🧩 Log Formats
 
@@ -517,7 +519,7 @@ server.js
 
 ### Example logger.js:
 ```js
-import Logger from "tini-log";
+import Logger from "dd-tinylog";
 
 export const logger = new Logger({
   prefix: "[API]",
@@ -528,7 +530,7 @@ export const logger = new Logger({
 ## 💼 Express.js Example
 ```js
 import express from "express";
-import Logger from "tini-log";
+import Logger from "dd-tinylog";
 
 const app = express();
 const logger = new Logger({ prefix: "[API]" });
@@ -1069,10 +1071,10 @@ Follow these steps if you want to work on the project locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Dev-Dami/tini-log.git
+git clone https://github.com/Dev-Dami/dd-tinylog.git
 
 # Navigate into the project
-cd tini-log
+cd dd-tinylog
 
 # Install dependencies
 npm install
@@ -1111,7 +1113,7 @@ MIT License - feel free to use this in your projects!
 ```
 
 ## 💬 Final Thoughts
-<B>tini-log</B> focuses on clarity, simplicity, and developer-friendliness.
+<B>dd-tinylog</B> focuses on clarity, simplicity, and developer-friendliness.
 It gives you the power of bigger loggers like Winston or Pino while keeping the API tiny and elegant.
 
 If you're building small services, APIs, CLIs, or educational projects, this logger will feel right at home.
@@ -1351,7 +1353,7 @@ app.listen(3000, () => {
 
 ## 🧪 Testing Example
 ```js
-import Logger from "tini-log";
+import Logger from "dd-tinylog";
 
 describe("Logger", () => {
   it("should log messages", () => {
@@ -1503,10 +1505,10 @@ Follow these steps if you want to work on the project locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Dev-Dami/tini-log.git
+git clone https://github.com/Dev-Dami/dd-tinylog.git
 
 # Navigate into the project
-cd tini-log
+cd dd-tinylog
 
 # Install dependencies
 npm install
@@ -1521,9 +1523,9 @@ npm run build
 ## 💬 Community
 <div align="center">
 
-[![GitHub Stars](https://img.shields.io/github/stars/yourusername/tini-log?style=social)](../../stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/yourusername/tini-log?style=social)](../../network/members)
-[![GitHub Issues](https://img.shields.io/github/issues/yourusername/tini-log?style=social)](../../issues)
+[![GitHub Stars](https://img.shields.io/github/stars/yourusername/dd-tinylog?style=social)](../../stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/yourusername/dd-tinylog?style=social)](../../network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/yourusername/dd-tinylog?style=social)](../../issues)
 
 **Join our growing community!**
 
@@ -1540,32 +1542,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE
 MIT License - feel free to use this in your projects!
 ```
 
-## 💬 Final Thoughts
-<B>tini-log</B> focuses on clarity, simplicity, and developer-friendliness.
-It gives you the power of bigger loggers like Winston or Pino while keeping the API tiny and elegant.
+### Made with ❤️ by developers, for developers
 
-If you're building small services, APIs, CLIs, or educational projects, this logger will feel right at home.
-
-## 🌟 Show Your Support
-
-If **tini-log** made your logging easier, consider:
-
-<div align="center">
-
-⭐ **Star this repository** to show your support
-
-🐦 **Share on Twitter** to spread the word
-
-☕ **Buy us a coffee** to fuel development
-
-[![Star History Chart](https://api.star-history.com/svg?repos=qSEBASp/tini-log&type=Date)](https://star-history.com/#qSEBASp/tini-log&Date)
-
-</div>
----
-<div align="center">
-
-**Made with ❤️ by developers, for developers**
-
-[⬆ Back to Top](#-tini-log)
-
-</div>
+[⬆ Back to Top](#top)
