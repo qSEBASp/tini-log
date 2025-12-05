@@ -1,6 +1,6 @@
 {
-  "name": "dd-tinylog",
-  "version": "0.2.4",
+  "name": "swiftlog",
+  "version": "0.2.0",
   "description": "A minimal, fast logging library for Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -34,9 +34,9 @@
   "license": "MIT",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/Dev-Dami/tini-log/issues"
+    "url": "https://github.com/Dev-Dami/swiftlog/issues"
   },
-  "homepage": "https://github.com/Dev-Dami/tini-log#readme",
+  "homepage": "https://github.com/Dev-Dami/swiftlog#readme",
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.0",
@@ -50,6 +50,7 @@
   },
   "files": [
     "dist/**/*",
-    "README.md"
+    "README.md",
+    "README.npm.md"
   ]
 }

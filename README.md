@@ -2,7 +2,7 @@
 
 <a id="top"></a>
 
-# 📝 dd-tinylog
+# 📝 swiftlog
 
 ### ⚡ The Ultimate Minimal Logging Solution for Node.js
 
