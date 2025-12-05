@@ -1,6 +1,6 @@
 {
-  "name": "dd-tinylog",
-  "version": "0.2.4",
+  "name": "zario",
+  "version": "0.2.1",
   "description": "A minimal, fast logging library for Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -17,11 +17,12 @@
     "dev": "tsc --watch",
     "test": "jest",
     "lint": "eslint . --ext .ts,.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build && node -e \"require('fs').copyFileSync('README.npm.md', 'README.md')\"",
+    "postpublish": "git checkout HEAD -- README.md"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dev-Dami/tini-log.git"
+    "url": "git+https://github.com/Dev-Dami/zario.git"
   },
   "keywords": [
     "logging",
@@ -34,9 +35,9 @@
   "license": "MIT",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/Dev-Dami/tini-log/issues"
+    "url": "https://github.com/Dev-Dami/zario/issues"
   },
-  "homepage": "https://github.com/Dev-Dami/tini-log#readme",
+  "homepage": "https://github.com/Dev-Dami/zario#readme",
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.0",

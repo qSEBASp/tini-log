@@ -60,10 +60,10 @@ export class Formatter {
   }
 
   private formatAsText(data: LogData): string {
-    let output = "";
+    let timestampStr = '';
     if (this.timestamp) {
       const timestamp = TimeUtil.format(data.timestamp, this.timestampFormat);
-      output += `[${timestamp}] `;
+      timestampStr = `[${timestamp}] `;
     }
 
     let level = data.level.toUpperCase();
@@ -74,19 +74,12 @@ export class Formatter {
       level = ColorUtil.colorize(level, color);
     }
 
-    output += `${level} - `;
+    const levelStr = `[${level}] `;
+    const prefixStr = data.prefix ? `${data.prefix} ` : '';
+    const metadataStr = data.metadata ? ` ${JSON.stringify(data.metadata)}` : '';
 
-    if (data.prefix) {
-      output += `${data.prefix} `;
-    }
-
-    output += data.message;
-
-    if (data.metadata) {
-      output += ` ${JSON.stringify(data.metadata)}`;
-    }
-
-    return output;
+    // Use single template literal to avoid multiple concatenations
+    return `${timestampStr}${prefixStr}${levelStr}${data.message}${metadataStr}`;
   }
 
   setJson(json: boolean): void {

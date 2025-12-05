@@ -2,7 +2,7 @@
 
 <a id="top"></a>
 
-# 🤝 Contributing to dd-tinylog
+# 🤝 Contributing to Zario
 
 ## We're thrilled you're here and excited to see you contribute!
 
@@ -10,7 +10,7 @@
 
 <br/>
 
-Welcome to the `dd-tinylog` community! We believe in the power of collaboration and appreciate every contribution, from a simple typo fix to a major new feature. This guide will help you get started and ensure a smooth and positive experience.
+Welcome to the `Zario` community! We believe in the power of collaboration and appreciate every contribution, from a simple typo fix to a major new feature. This guide will help you get started and ensure a smooth and positive experience.
 
 <br/>
 
@@ -27,17 +27,17 @@ There are many ways to contribute to the project, and we welcome all of them!
 <td width="25%" align="center">
 <strong>🐛 Report Bugs</strong><br/>
 <sub>Found something broken?</sub><br/>
-<a href="https://github.com/Dev-Dami/tini-log/issues/new?template=bug_report.md">Report it →</a>
+<a href="https://github.com/Dev-Dami/zario/issues/new?template=bug_report.md">Report it →</a>
 </td>
 <td width="25%" align="center">
 <strong>💡 Request Features</strong><br/>
 <sub>Have a great idea?</sub><br/>
-<a href="https://github.com/Dev-Dami/tini-log/issues/new?template=feature_request.md">Suggest it →</a>
+<a href="https://github.com/Dev-Dami/zario/issues/new?template=feature_request.md">Suggest it →</a>
 </td>
 <td width="25%" align="center">
 <strong>📖 Improve Docs</strong><br/>
 <sub>Found a typo?</sub><br/>
-<a href="https://github.com/Dev-Dami/tini-log/pulls">Submit PR →</a>
+<a href="https://github.com/Dev-Dami/zario/pulls">Submit PR →</a>
 </td>
 <td width="25%" align="center">
 <strong>💻 Write Code</strong><br/>
@@ -55,17 +55,19 @@ There are many ways to contribute to the project, and we welcome all of them!
 
 ## 🛠️ Development Setup
 
-Ready to start coding? Here’s how to set up `dd-tinylog` for local development.
+Ready to start coding? Here’s how to set up `Zario` for local development.
 
 1.  **Fork the Repository**
-    Click the "Fork" button at the top right of the [main repository page](https://github.com/Dev-Dami/tini-log). This creates your own copy of the project.
+    Click the "Fork" button at the top right of the [main repository page](https://github.com/Dev-Dami/zario). This creates your own copy of the project.
 
 2.  **Clone Your Fork**
     Clone your forked repository to your local machine.
     ```bash
-    git clone https://github.com/YOUR_USERNAME/tini-log.git
-    cd tini-log
+    git clone https://github.com/<your-username>/zario.git
+    cd zario
     ```
+
+    Replace `<your-username>` with your GitHub username.
 
 3.  **Install Dependencies**
     We use `npm` to manage project dependencies.
@@ -89,7 +91,7 @@ Ready to start coding? Here’s how to set up `dd-tinylog` for local development
 
 ## 📂 Project Structure
 
-Here's a map of the `dd-tinylog` codebase to help you find your way around.
+Here's a map of the `Zario` codebase to help you find your way around.
 
 ```bash
 /
@@ -149,7 +151,7 @@ Ready to share your work? Follow these steps to submit a pull request (PR).
     git push origin feat/your-awesome-feature
     ```
 
-4.  **Create the Pull Request**: Open a pull request from your fork's branch to the `main` branch of the `Dev-Dami/tini-log` repository.
+4.  **Create the Pull Request**: Open a pull request from your fork's branch to the `main` branch of the Dev-Dami/zario repository.
 
 5.  **Describe Your PR**: Provide a clear title and a detailed description of your changes. If your PR addresses an open issue, link to it (e.g., `Closes #123`).
 
@@ -163,7 +165,7 @@ Once submitted, we'll review your PR, provide feedback, and merge it when it's r
 
 ## 💬 Community
 
-Have questions or want to discuss ideas? Join the conversation on our [GitHub Discussions](https://github.com/Dev-Dami/tini-log/discussions) page!
+Have questions or want to discuss ideas? Join the conversation on our [GitHub Discussions](https://github.com/Dev-Dami/zario/discussions) page!
 
 ---
 

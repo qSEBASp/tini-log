@@ -47,15 +47,15 @@ export class Logger {
       timestamp,
       context = {},
       parent,
-      async = false,
+      async,
       customLevels = {},
       customColors = {},
     } = options;
 
-    this.asyncMode = async;
     this.parent = parent; // Set parent
     this.context = { ...context }; // Init context
     this.customLevels = customLevels; // Store custom log levels
+    this.asyncMode = false;
 
     if (this.parent) {
       this.level = level ?? this.parent.level;
@@ -86,6 +86,7 @@ export class Logger {
       this.level = level ?? "info";
       this.prefix = prefix ?? "";
       this.timestamp = timestamp ?? false;
+      this.asyncMode = async ?? false;
       this.transports = this.initTransports(
         transports.length > 0 ? transports : [{ type: "console" }],
         colorize,
@@ -165,10 +166,46 @@ export class Logger {
     }
 
     // Use default priority if available
-    return defaultPriorities[level] ?? 999; // Default to high priority for unknown levels
+    return defaultPriorities[level] ?? 999;
   }
 
   private log(
+    level: LogLevel,
+    message: string,
+    metadata?: Record<string, any>,
+  ): void {
+    if (!this.shouldLog(level)) {
+      return;
+    }
+    // Don't log silent level logs at all
+    if (level === "silent") {
+      return;
+    }
+
+    if (this.asyncMode) {
+      // For async mode, we need to call the direct method
+      this.logAsyncDirect(level, message, metadata);
+    } else {
+      // Only create timestamp after confirming log should be written
+      const timestamp = new Date();
+      const mergedMetadata = { ...this.context, ...metadata };
+
+      const logData: LogData = {
+        level,
+        message,
+        timestamp,
+        metadata:
+          Object.keys(mergedMetadata).length > 0 ? mergedMetadata : undefined,
+        prefix: this.prefix,
+      };
+
+      for (const transport of this.transports) {
+        transport.write(logData, this.formatter);
+      }
+    }
+  }
+
+  private logAsyncDirect(
     level: LogLevel,
     message: string,
     metadata?: Record<string, any>,
@@ -181,28 +218,19 @@ export class Logger {
       return;
     }
 
+    // Timestamp only on confirmed log
+    const timestamp = new Date();
     const mergedMetadata = { ...this.context, ...metadata };
 
     const logData: LogData = {
       level,
       message,
-      timestamp: new Date(),
+      timestamp,
       metadata:
         Object.keys(mergedMetadata).length > 0 ? mergedMetadata : undefined,
       prefix: this.prefix,
     };
 
-    if (this.asyncMode) {
-      this.logAsync(logData);
-    } else {
-      for (const transport of this.transports) {
-        transport.write(logData, this.formatter);
-      }
-    }
-  }
-
-  // process asyncronously
-  private logAsync(logData: LogData): void {
     for (const transport of this.transports) {
       if (transport.writeAsync) {
         transport.writeAsync(logData, this.formatter).catch((error) => {
