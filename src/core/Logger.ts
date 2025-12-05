@@ -18,7 +18,7 @@ export interface LoggerOptions {
   timestamp?: boolean;
   context?: Record<string, any>;
   parent?: Logger;
-  async?: boolean;
+  asyncMode?: boolean;
   customLevels?: { [level: string]: number }; // level name and priority
   customColors?: { [level: string]: string }; // level name and color
 }
@@ -47,7 +47,7 @@ export class Logger {
       timestamp,
       context = {},
       parent,
-      async,
+      asyncMode,
       customLevels = {},
       customColors = {},
     } = options;
@@ -61,7 +61,7 @@ export class Logger {
       this.level = level ?? this.parent.level;
       this.prefix = prefix ?? this.parent.prefix;
       this.timestamp = timestamp ?? this.parent.timestamp;
-      this.asyncMode = async ?? this.parent.asyncMode;
+      this.asyncMode = asyncMode ?? this.parent.asyncMode;
       this.transports =
         transports.length > 0
           ? this.initTransports(transports, colorize)
@@ -86,7 +86,7 @@ export class Logger {
       this.level = level ?? "info";
       this.prefix = prefix ?? "";
       this.timestamp = timestamp ?? false;
-      this.asyncMode = async ?? false;
+      this.asyncMode = asyncMode ?? false;
       this.transports = this.initTransports(
         transports.length > 0 ? transports : [{ type: "console" }],
         colorize,
@@ -287,8 +287,8 @@ export class Logger {
     this.formatter.setJson(format === "json");
   }
 
-  setAsync(async: boolean): void {
-    this.asyncMode = async;
+  setAsyncMode(asyncMode: boolean): void {
+    this.asyncMode = asyncMode;
   }
 
   addTransport(transport: Transport): void {

@@ -4,7 +4,7 @@ import { Logger } from "../src";
 const asyncLogger = new Logger({
   level: "info",
   colorize: true,
-  async: true, // Enable asynchronous logging
+  asyncMode: true, // Enable asynchronous logging
   transports: [
     { type: "console" },
     { type: "file", options: { path: "./logs/async-app.log" } },
@@ -28,10 +28,10 @@ console.log("Main thread continues immediately after logging...");
 console.log("Log messages are being written in the background");
 
 // You can also toggle async mode at runtime
-asyncLogger.setAsync(false); // Switch back to synchronous mode
+asyncLogger.setAsyncMode(false); // Switch back to synchronous mode
 asyncLogger.info("Now logging synchronously");
 
-asyncLogger.setAsync(true); // Switch back to async mode
+asyncLogger.setAsyncMode(true); // Switch back to async mode
 asyncLogger.info("Back to asynchronous logging");
 
 // Child loggers inherit the async setting from parent

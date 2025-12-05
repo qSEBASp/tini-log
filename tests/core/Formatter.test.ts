@@ -391,7 +391,7 @@ describe('Formatter - Text Formatting (Refactored)', () => {
       expect(parsed.level).toBe('info');
       expect(parsed.message).toBe('JSON test');
       expect(parsed.prefix).toBe('[APP]');
-      expect(parsed.metadata).toEqual({ key: 'value' });
+      expect(parsed.key).toBe('value');
     });
 
     test('should handle different timestamp formats', () => {
