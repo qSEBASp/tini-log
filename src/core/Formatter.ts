@@ -45,7 +45,7 @@ export class Formatter {
     const formattedData: any = {
       level: data.level,
       message: data.message,
-      ...data.metadata,
+      ...data.metadata,  // Spread user metadata to top level
     };
 
     if (this.timestamp) {

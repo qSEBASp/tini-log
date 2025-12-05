@@ -24,7 +24,7 @@ const { Logger } = require("dd-tinylog");
 const logger = new Logger({
   level: 'info',         // Set the minimum log level
   colorize: true,        // Enable colored output for console transport
-  async: true,           // Enable asynchronous logging
+  asyncMode: true,           // Enable asynchronous logging
   transports: [
     { type: 'console' },                               // Log to console
     { type: 'file', options: { path: './logs/app.log' } }, // Log to a file
