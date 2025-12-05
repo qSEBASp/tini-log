@@ -37,6 +37,7 @@
 *   🧩 Child loggers for modular logging
 *   🧵 Async writes — keeps Node responsive
 *   🔒 Small, safe, dependency-light design
+*   🌈 Custom log levels with color support
 
 ## 📦 Installation
 
@@ -62,7 +63,7 @@ bun add dd-tinylog
 ### 🚀 Quick Start
 
 ```js
-import Logger from "dd-tinylog";
+import { Logger } from "dd-tinylog";
 
 const logger = new Logger({
   level: "info",
@@ -145,7 +146,7 @@ Perfect when you want separate logs per module or request:
 
 ```js
 const main = new Logger({ prefix: "[APP]" });
-const db = main.child({ prefix: "[DB]" });
+const db = main.createChild({ prefix: "[DB]" });
 
 main.info("App initialized");
 db.error("Connection timeout");
@@ -198,6 +199,7 @@ Output:
 - **Custom formatters**
 - **Log level filtering**
 - **Metadata support**
+- **Custom log levels and colors**
 
 </td>
 </tr>
@@ -317,6 +319,104 @@ const logger = new Logger({
 
 <br/>
 
+### 🎨 Advanced Usage: Custom Levels & Colors
+
+<details>
+<summary><strong>Define Custom Log Levels</strong></summary>
+
+Create your own log levels with specific priorities and colors for more granular logging.
+
+```typescript
+import { Logger } from 'dd-tinylog';
+
+const logger = new Logger({
+  level: 'info',
+  customLevels: {
+    'success': 6,      // Higher priority than error (5).
+    'verbose': 1,      // Lower priority than debug (2).
+    'critical': 7,     // Highest priority.
+  },
+  customColors: {
+    'success': 'green',
+    'verbose': 'cyan',
+    'critical': 'brightRed',
+  },
+  transports: [
+    { type: 'console' }
+  ]
+});
+
+// Using custom levels.
+logger.logWithLevel('success', 'This is a success message in green!');
+logger.logWithLevel('verbose', 'This is a verbose message in cyan');
+logger.logWithLevel('critical', 'This is a critical message in bright red');
+```
+
+</details>
+
+<details>
+<summary><strong>Log Level Filtering</strong></summary>
+
+Set the logger's `level` to a custom level to filter messages based on their priority.
+
+```typescript
+// Only logs levels with priority >= 7 (critical in this case).
+const highLevelLogger = new Logger({
+  level: 'critical', 
+  customLevels: {
+    'success': 6,
+    'verbose': 1,
+    'critical': 7,
+  },
+  transports: [
+    { type: 'console' }
+  ]
+});
+
+// This will NOT be shown (verbose has priority 1 < critical threshold 7).
+highLevelLogger.logWithLevel('verbose', 'This will not appear');
+
+// This WILL be shown (critical has priority 7 >= threshold 7).
+highLevelLogger.logWithLevel('critical', 'This critical message appears');
+```
+</details>
+
+<details>
+<summary><strong>Child Logger with Custom Levels</strong></summary>
+
+Child loggers inherit custom levels and colors from their parent, and can also have their own.
+
+```typescript
+const parentLogger = new Logger({
+  level: 'info',
+  customLevels: {
+    'parent_custom': 6,
+  },
+  customColors: {
+    'parent_custom': 'blue',
+  },
+  transports: [
+    { type: 'console' }
+  ]
+});
+
+// Child will inherit parent's custom levels and can add its own.
+const childLogger = parentLogger.createChild({
+  customLevels: {
+    'child_custom': 7,  // Add child-specific level.
+  },
+  customColors: {
+    'child_custom': 'red',
+  }
+});
+
+childLogger.logWithLevel('parent_custom', 'Inherited from parent');
+childLogger.logWithLevel('child_custom', 'Defined in child');
+```
+</details>
+
+<br/>
+
 ![separator](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 
 <br/>
@@ -337,7 +437,7 @@ const app = express();
 const logger = new Logger({ prefix: '[API]' });
 
 app.use((req, res, next) => {
-  const reqLogger = logger.child({ prefix: `[${req.method} ${req.url}]` });
+  const reqLogger = logger.createChild({ prefix: `[${req.method} ${req.url}]` });
   reqLogger.info("Incoming request");
   next();
 });
@@ -475,7 +575,7 @@ orderService.info('Order placed');
 ```
 ### JSON Format
 ```js
-const logger = new Logger({ format: "json" });
+const logger = new Logger({ json: true });
 ```
 Output:
 ```json
@@ -531,12 +631,14 @@ describe("Logger", () => {
 
 | Option         | Type     | Description             |
 | -------------- | -------- | ----------------------- |
-| **level**      | string   | Log level threshold     |
-| **format**     | `"plain" | "json"`                 | Output format |
-| **timestamp**  | boolean  | Include timestamps      |
-| **prefix**     | string   | Prepended label         |
-| **transports** | array    | Where logs are written  |
-| **child()**    | method   | Creates a scoped logger |
+| **level**      | `string`   | Log level threshold     |
+| **json**       | `boolean`  | Output in JSON format   |
+| **timestamp**  | `boolean`  | Include timestamps      |
+| **prefix**     | `string`   | Prepended label         |
+| **transports** | `array`    | Where logs are written  |
+| **customLevels** | `object` | Define custom log levels and their priorities |
+| **customColors** | `object` | Assign colors to custom log levels |
+| **createChild()**    | `method`   | Creates a scoped logger |
 
 <br/>
 
@@ -621,7 +723,7 @@ describe("Logger", () => {
 - [ ] 📊 Performance metrics
 - [ ] 🔍 Advanced filtering
 - [ ] 📱 React Native support
-- [ ] 🌈 Custom themes
+- [x] 🌈 Custom themes
 - [ ] 🔐 Log encryption
 - [ ] 📈 Analytics dashboard
 
