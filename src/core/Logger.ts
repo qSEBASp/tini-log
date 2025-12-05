@@ -67,7 +67,7 @@ export class Logger {
           ? this.initTransports(transports, colorize)
           : this.parent.transports;
       // Merge colors; child overrides parent
-      const mergedCustomColors = {
+      const mergedCColors = {
         ...this.parent.formatter.getCustomColors(),
         ...customColors,
       };
@@ -77,7 +77,7 @@ export class Logger {
         timestampFormat:
           timestampFormat ?? this.parent.formatter.getTimestampFormat(),
         timestamp: timestamp ?? this.parent.formatter.hasTimestamp(),
-        customColors: mergedCustomColors,
+        customColors: mergedCColors,
       });
       this.context = { ...this.parent.context, ...this.context };
       // Merge custom levels with parent's custom levels
