@@ -217,7 +217,7 @@ export class Logger {
   }
 
   private isTransport(obj: any): obj is Transport {
-    return obj && typeof obj.write === "function";
+    return obj && typeof obj.write === "function" && (typeof obj.writeAsync === "function" || obj.writeAsync === undefined);
   }
 
   private shouldLog(level: LogLevel): boolean {
