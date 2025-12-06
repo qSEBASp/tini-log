@@ -23,12 +23,8 @@ export interface LegacyTransportOptions {
   instance?: Transport;
 }
 
-// New transport APIs
-export type ConsoleTransportFunction = () => ConsoleTransport;
-export type FileTransportFunction = (options?: FileTransportOptions) => FileTransport;
-
-// Union type supporting both legacy and new transport configs
-export type TransportConfig = LegacyTransportOptions | ConsoleTransportFunction | FileTransportFunction | Transport;
+// Union type supporting legacy configs and direct transport instances
+export type TransportConfig = LegacyTransportOptions | Transport;
 
 export interface LoggerConfig {
   level?: LogLevel;
