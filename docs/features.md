@@ -13,8 +13,9 @@
 
 ## Advanced Features
 
-- **File Rotation**: Automatically manage log file sizes.
-- **Asynchronous Transports**: Write logs in the background to improve application performance.
+- **File Rotation**: Automatically manage log file sizes with maxSize and maxFiles configuration.
+- **Compression Support**: Compress rotated log files using gzip or deflate algorithms (.gz, .zz extensions).
+- **Log Batching**: Efficiently batch log writes to reduce I/O operations with configurable intervals.
 - **TypeScript Support**: Developed with TypeScript for type safety and a better developer experience.
 
 For detailed usage examples, refer to the [Usage Guide](./usage.md).

@@ -2,6 +2,13 @@
 
 A minimal, fast logging library for Node.js with TypeScript support.
 
+## UPDATE 2.9
+
+- Added HTTP transport support with new HttpTransport class
+- Added log batching functionality for efficient writes
+- Added compression support (.gz, .zz) for rotated files
+- Enhanced rotation with maxSize, maxFiles, and configurable compression
+
 ## Installation
 
 ```bash
@@ -36,7 +43,7 @@ logger.error("❌ Database connection failed", { code: 500 });
 | **json**       | `boolean`| Output in JSON format   |
 | **timestamp**  | `boolean`| Include timestamps      |
 | **prefix**     | `string` | Prepended label         |
-| **transports** | `array`  | Where logs are written (with transport-specific options like `path`, `maxSize`, `maxFiles` for file transport) |
+| **transports** | `array`  | Where logs are written (with transport-specific options like `path`, `maxSize`, `maxFiles`, `compression`, `batchInterval`, `compressOldFiles` for file transport) |
 | **customLevels** | `object` | Define custom log levels and their priorities |
 | **customColors** | `object` | Assign colors to custom log levels |
 
@@ -73,7 +80,10 @@ const logger = new Logger({
     new FileTransport({
       path: './logs/app.log',
       maxSize: 10485760, // 10MB in bytes
-      maxFiles: 5
+      maxFiles: 5,
+      compression: 'gzip', // 'gzip', 'deflate', or 'none' (default: 'none')
+      batchInterval: 1000, // Batch interval in ms (0 to disable, default: 0)
+      compressOldFiles: true // Whether to compress old files during rotation (default: true)
     })
   ]
 });

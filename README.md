@@ -127,6 +127,19 @@ Output:
 <td>Critical failures</td>
 <td>System crash, data corruption</td>
 </tr>
+<tr>
+<td>🔇 <strong>SILENT</strong></td>
+<td><code>logger.silent()</code></td>
+<td>Suppresses logging</td>
+<td>Disable logging for specific scenarios</td>
+</tr>
+<tr>
+<td>😑 <strong>BORING</strong></td>
+<td><code>logger.boring()</code></td>
+<td><code>logger.boringAsync()</code></td>
+<td>Low priority info</td>
+<td>Verbose background operations</td>
+</tr>
 </tbody>
 </table>
 
@@ -254,7 +267,7 @@ All settings can be overridden with explicit options.
 ```javascript
 const logger = new Logger({
   transports: [
-    consoleT({ colorize: true })
+    new ConsoleTransport({ colorize: true })
   ]
 });
 ```
@@ -269,7 +282,7 @@ Perfect for development and debugging.
 ```javascript
 const logger = new Logger({
   transports: [
-    fileT({
+    new FileTransport({
       path: './logs/app.log',
       maxSize: 10485760, // 10MB in bytes
       maxFiles: 5
@@ -288,7 +301,7 @@ Ideal for production logging and auditing.
 ```javascript
 const logger = new Logger({
   transports: [
-    httpT({
+    new HttpTransport({
       url: 'https://api.example.com/logs',
       method: 'POST',
       headers: {

@@ -6,4 +6,9 @@ export default {
   testMatch: ['**/tests/**/*.test.(ts|js)'],
   collectCoverageFrom: ['src/**/*.{ts,js}', '!src/**/*.d.ts'],
   testTimeout: 15000, // Increase timeout for Windows
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json'
+    }
+  }
 };

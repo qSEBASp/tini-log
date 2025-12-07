@@ -3,27 +3,55 @@ import { LogData } from "../types";
 import { Formatter } from "../core/Formatter";
 import * as fs from "fs";
 import * as path from "path";
+import * as zlib from "zlib";
+import { promisify } from "util";
+
+const compressGzip = promisify(zlib.gzip);
+const compressDeflate = promisify(zlib.deflate);
+
+export type CompressionType = "gzip" | "deflate" | "none";
 
 export interface FileTransportOptions {
   path: string;
   maxSize?: number;
   maxFiles?: number;
+  compression?: CompressionType; // type of compression
+  batchInterval?: number; // no batching
+  compressOldFiles?: boolean; // compress old files
+}
+
+export interface BatchLogEntry {
+  data: string;
+  timestamp: Date;
 }
 
 export class FileTransport implements Transport {
   private filePath: string;
   private maxSize: number;
   private maxFiles: number;
+  private compression: CompressionType;
+  private batchInterval: number;
+  private compressOldFiles: boolean;
+
+  // batching funct
+  private batchQueue: BatchLogEntry[] = [];
+  private batchTimer: NodeJS.Timeout | null = null;
 
   constructor(options: FileTransportOptions) {
     const {
       path: filePath,
       maxSize = 10 * 1024 * 1024,
       maxFiles = 5,
+      compression = "none",
+      batchInterval = 0, // no batching
+      compressOldFiles = true,
     } = options;
     this.filePath = filePath;
     this.maxSize = maxSize;
     this.maxFiles = maxFiles;
+    this.compression = compression;
+    this.batchInterval = batchInterval;
+    this.compressOldFiles = compressOldFiles;
 
     const dir = path.dirname(this.filePath);
     if (!fs.existsSync(dir)) {
@@ -32,28 +60,53 @@ export class FileTransport implements Transport {
     if (!fs.existsSync(this.filePath)) {
       fs.writeFileSync(this.filePath, "", "utf8");
     }
+
+    // Start batching if an interval is set
+    if (batchInterval > 0) {
+      this.startBatching();
+    }
   }
 
   write(data: LogData, formatter: Formatter): void {
     const output = formatter.format(data);
     const formattedOutput = output + "\n";
-    fs.appendFileSync(this.filePath, formattedOutput);
-    this.rotateIfNeeded();
+
+    if (this.batchInterval > 0) {
+      // Queue entry if batching is enabled
+      this.batchQueue.push({
+        data: formattedOutput,
+        timestamp: new Date(),
+      });
+    } else {
+      // Write immediately when batching is disabled
+      fs.appendFileSync(this.filePath, formattedOutput);
+      this.rotateIfNeeded();
+    }
   }
 
   async writeAsync(data: LogData, formatter: Formatter): Promise<void> {
     const output = formatter.format(data);
     const formattedOutput = output + "\n";
-    await new Promise<void>((resolve, reject) => {
-      fs.appendFile(this.filePath, formattedOutput, (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
+
+    if (this.batchInterval > 0) {
+      // Queue entry if batching is enabled
+      this.batchQueue.push({
+        data: formattedOutput,
+        timestamp: new Date(),
       });
-    });
-    await this.rotateIfNeededAsync();
+    } else {
+      // Write immediately if batching is disabled
+      await new Promise<void>((resolve, reject) => {
+        fs.appendFile(this.filePath, formattedOutput, (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve();
+        });
+      });
+      await this.rotateIfNeededAsync();
+    }
   }
 
   private rotateIfNeeded(): void {
@@ -92,8 +145,22 @@ export class FileTransport implements Transport {
       if (fs.existsSync(this.filePath)) {
         currentContent = fs.readFileSync(this.filePath, "utf8");
       }
-      const rotatedFilePath = this.getRotatedFilePath();
-      fs.writeFileSync(rotatedFilePath, currentContent, "utf8");
+
+      // Generate rotated file path
+      let rotatedFilePath = this.getRotatedFilePath();
+
+      // Write compressed content if enabled
+      if (this.compression !== "none" && this.compressOldFiles) {
+        rotatedFilePath = `${rotatedFilePath}.${this.compression === "gzip" ? "gz" : "zz"}`;
+        const compressedData =
+          this.compression === "gzip"
+            ? zlib.gzipSync(currentContent)
+            : zlib.deflateSync(currentContent);
+        fs.writeFileSync(rotatedFilePath, compressedData);
+      } else {
+        fs.writeFileSync(rotatedFilePath, currentContent, "utf8");
+      }
+
       fs.writeFileSync(this.filePath, "", "utf8");
       this.cleanupOldFiles();
     } catch (error) {
@@ -103,15 +170,26 @@ export class FileTransport implements Transport {
 
   private async rotateFilesAsync(): Promise<void> {
     try {
-      // read current file content asynchronously
+      // Read current file content asynchronously
       let currentContent = "";
       if (fs.existsSync(this.filePath)) {
         currentContent = await fs.promises.readFile(this.filePath, "utf8");
       }
 
-      // create rotated file with current content
-      const rotatedFilePath = this.getRotatedFilePath();
-      await fs.promises.writeFile(rotatedFilePath, currentContent, "utf8");
+      // Generate rotated file path
+      let rotatedFilePath = this.getRotatedFilePath();
+
+      // Write compressed content if enabled
+      if (this.compression !== "none" && this.compressOldFiles) {
+        rotatedFilePath = `${rotatedFilePath}.${this.compression === "gzip" ? "gz" : "zz"}`;
+        const compressedData =
+          this.compression === "gzip"
+            ? await compressGzip(currentContent)
+            : await compressDeflate(currentContent);
+        await fs.promises.writeFile(rotatedFilePath, compressedData);
+      } else {
+        await fs.promises.writeFile(rotatedFilePath, currentContent, "utf8");
+      }
 
       // create new empty current file
       await fs.promises.writeFile(this.filePath, "", "utf8");
@@ -145,21 +223,23 @@ export class FileTransport implements Transport {
       // fetch all files in directory
       const allFiles = fs.readdirSync(dir);
 
-      // Filter for rotated files: basename.timestamp
+      // Filter rotated files: basename.timestamp[.compression]
       const rotatedFiles = allFiles
         .filter((file) => {
           if (!file || file === baseName) {
             return false;
           }
+
+          // Check if file matches basename.timestamp[.compression]
           const pattern = new RegExp(
-            `^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+$`,
+            `^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+(\\.gz|\\.zz)?$`,
           );
           return pattern.test(file);
         })
         .sort((a, b) => {
-          // Extract timestamps and sort in newest first order
-          const timestampA = parseInt(a.split(".").pop() || "0");
-          const timestampB = parseInt(b.split(".").pop() || "0");
+          // Extract timestamps and sort newest first
+          const timestampA = parseInt(a.split(".")[1] || "0"); // Extract timestamp from filenames like base.12345.gz
+          const timestampB = parseInt(b.split(".")[1] || "0");
           return timestampB - timestampA;
         });
 
@@ -217,23 +297,23 @@ export class FileTransport implements Transport {
       // Get all files in directory
       const allFiles = await fs.promises.readdir(dir);
 
-      // Filter for rotated files: basename.timestamp
+      // Filter rotated files: basename.timestamp[.compression]
       const rotatedFiles = allFiles
         .filter((file) => {
           if (!file || file === baseName) {
             return false; // Skip current file
           }
 
-          // Check if file matches pattern: basename.timestamp
+          // Check if file matches basename.timestamp[.compression]
           const pattern = new RegExp(
-            `^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+$`,
+            `^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+(\\.gz|\\.zz)?$`,
           );
           return pattern.test(file);
         })
         .sort((a, b) => {
-          // Extract timestamps and sort in descending order (newest first)
-          const timestampA = parseInt(a.split(".").pop() || "0");
-          const timestampB = parseInt(b.split(".").pop() || "0");
+          // Extract timestamps and sort newest first
+          const timestampA = parseInt(a.split(".")[1] || "0"); // Extract timestamp from filenames like base.12345.gz
+          const timestampB = parseInt(b.split(".")[1] || "0");
           return timestampB - timestampA;
         });
 
@@ -283,6 +363,60 @@ export class FileTransport implements Transport {
       await Promise.all(deletePromises);
     } catch (error) {
       console.error("Error during async cleanup of old files:", error);
+    }
+  }
+
+  private startBatching(): void {
+    if (this.batchInterval > 0) {
+      this.batchTimer = setInterval(() => {
+        this.processBatch().catch((error) => {
+          console.error("Error in batch processing timer:", error);
+        });
+      }, this.batchInterval);
+    }
+  }
+
+  private async processBatch(): Promise<void> {
+    if (this.batchQueue.length === 0) {
+      return;
+    }
+
+    // Combine queued entries into one batch
+    const batchContent = this.batchQueue.map((entry) => entry.data).join("");
+
+    try {
+      await new Promise<void>((resolve, reject) => {
+        fs.appendFile(this.filePath, batchContent, (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve();
+        });
+      });
+
+      /// Rotate if needed after writing
+      await this.rotateIfNeededAsync();
+      // Clear queue on success
+      this.batchQueue = [];
+    } catch (error) {
+      console.error("Error processing log batch:", error);
+      // On error, keep queue for retry
+    }
+  }
+
+  // Clean up resources when the transport is disposed
+  public destroy(): void {
+    if (this.batchTimer) {
+      clearInterval(this.batchTimer);
+      this.batchTimer = null;
+    }
+
+    // Flush remaining queued entries
+    if (this.batchQueue.length > 0) {
+      this.processBatch().catch((error) => {
+        console.error("Error processing final batch:", error);
+      });
     }
   }
 }

@@ -16,9 +16,9 @@ Initialize the logger and start logging messages.
 
 ```typescript
 // ESM
-import { Logger, consoleT, fileT, httpT } from 'zario';
+import { Logger, ConsoleTransport, FileTransport, HttpTransport } from 'zario';
 // CommonJS
-const { Logger, consoleT, fileT, httpT } = require("zario");
+const { Logger, ConsoleTransport, FileTransport, HttpTransport } = require("zario");
 
 // Create a logger instance with desired configurations
 const logger = new Logger({
@@ -26,9 +26,16 @@ const logger = new Logger({
   colorize: true,        // Enable colored output for console transport
   asyncMode: true,           // Enable asynchronous logging
   transports: [
-    consoleT(),                               // Log to console
-    fileT({ path: './logs/app.log' }),       // Log to a file
-    httpT({                                   // Send logs over HTTP
+    new ConsoleTransport(),                               // Log to console
+    new FileTransport({                                   // Log to a file with advanced options
+      path: './logs/app.log',                             // Log file path
+      maxSize: 10485760,                                  // 10MB max file size (optional)
+      maxFiles: 5,                                        // Max number of rotated files (optional)
+      compression: 'gzip',                                // 'gzip', 'deflate', or 'none' (optional)
+      batchInterval: 1000,                                // Batch write interval in ms (optional, 0 to disable)
+      compressOldFiles: true                              // Compress old rotated files (optional)
+    }),
+    new HttpTransport({                                   // Send logs over HTTP
       url: 'https://api.example.com/logs',
       method: 'POST',
       headers: {

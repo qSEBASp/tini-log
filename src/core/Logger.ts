@@ -192,6 +192,15 @@ export class Logger {
             if (transportOption.options.maxFiles !== undefined) {
               fileOptions.maxFiles = transportOption.options.maxFiles;
             }
+            if (transportOption.options.compression !== undefined) {
+              fileOptions.compression = transportOption.options.compression;
+            }
+            if (transportOption.options.batchInterval !== undefined) {
+              fileOptions.batchInterval = transportOption.options.batchInterval;
+            }
+            if (transportOption.options.compressOldFiles !== undefined) {
+              fileOptions.compressOldFiles = transportOption.options.compressOldFiles;
+            }
             const fileTransport = new FileTransport(fileOptions);
             initializedTransports.push(fileTransport);
           }

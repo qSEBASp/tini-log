@@ -1,7 +1,7 @@
 import { LogLevel } from "../core/LogLevel";
 import { CustomLogLevelConfig } from "../core/CustomLogLevel";
 import { Transport } from "../transports/Transport";
-import { ConsoleTransport, ConsoleTransportOptions, FileTransport, FileTransportOptions, HttpTransport, HttpTransportOptions } from "../transports";
+import { ConsoleTransport, ConsoleTransportOptions, FileTransport, FileTransportOptions, HttpTransport, HttpTransportOptions, CompressionType } from "../transports";
 
 export interface LogData {
   level: LogLevel;
@@ -19,6 +19,9 @@ export interface LegacyTransportOptions {
     colorize?: boolean;
     maxSize?: number;
     maxFiles?: number;
+    compression?: CompressionType;
+    batchInterval?: number;
+    compressOldFiles?: boolean;
     url?: string;
     method?: string;
     headers?: Record<string, string>;
