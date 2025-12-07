@@ -22,7 +22,7 @@ describe("Logger - Child Loggers", () => {
       level: "info",
       prefix: "PARENT",
       timestamp: true,
-      transports: [{ type: "custom", instance: mockTransport }], // Pass mock transport directly
+      transports: [mockTransport], // Pass mock transport directly
       context: { parentId: 123 },
     });
   });
@@ -132,15 +132,15 @@ describe("Logger - Child Loggers", () => {
         'warn': 'yellow',
         'custom1': 'magenta',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const childLogger = parentWithColors.createChild();
-    
+
     // Verify child inherits parent's custom colors via formatter
     const parentFormatter = (parentWithColors as any).formatter;
     const childFormatter = (childLogger as any).formatter;
-    
+
     expect(childFormatter.getCustomColors()).toEqual({
       'info': 'blue',
       'warn': 'yellow',
@@ -156,7 +156,7 @@ describe("Logger - Child Loggers", () => {
         'warn': 'yellow',
         'custom1': 'magenta',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const childLogger = parentWithColors.createChild({
@@ -165,9 +165,9 @@ describe("Logger - Child Loggers", () => {
         'custom2': 'cyan',    // Add new color
       }
     });
-    
+
     const childFormatter = (childLogger as any).formatter;
-    
+
     // Child should have merged colors with child overriding parent
     expect(childFormatter.getCustomColors()).toEqual({
       'info': 'blue',       // Inherited from parent
@@ -184,15 +184,15 @@ describe("Logger - Child Loggers", () => {
         'error': 'red',
         'success': 'green',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const childLogger = parentWithColors.createChild({
       customColors: {}
     });
-    
+
     const childFormatter = (childLogger as any).formatter;
-    
+
     expect(childFormatter.getCustomColors()).toEqual({
       'error': 'red',
       'success': 'green',
@@ -206,7 +206,7 @@ describe("Logger - Child Loggers", () => {
         'parent': 'blue',
         'shared': 'yellow',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const childLogger = parentLogger.createChild({
@@ -222,9 +222,9 @@ describe("Logger - Child Loggers", () => {
         'shared': 'red',     // Override both parent and child
       }
     });
-    
+
     const grandchildFormatter = (grandchildLogger as any).formatter;
-    
+
     expect(grandchildFormatter.getCustomColors()).toEqual({
       'parent': 'blue',       // From parent
       'child': 'green',       // From child
@@ -240,16 +240,16 @@ describe("Logger - Child Loggers", () => {
         'critical': 'brightRed',
         'verbose': 'cyan',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     // Child created without customColors option at all
     const childLogger = parentWithColors.createChild({
       prefix: "CHILD"
     });
-    
+
     const childFormatter = (childLogger as any).formatter;
-    
+
     expect(childFormatter.getCustomColors()).toEqual({
       'critical': 'brightRed',
       'verbose': 'cyan',
@@ -262,7 +262,7 @@ describe("Logger - Child Loggers", () => {
       customColors: {
         'base': 'white',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const child1 = parentLogger.createChild({
@@ -272,21 +272,21 @@ describe("Logger - Child Loggers", () => {
     const child2 = parentLogger.createChild({
       customColors: { 'child2': 'blue' }
     });
-    
+
     const child1Formatter = (child1 as any).formatter;
     const child2Formatter = (child2 as any).formatter;
-    
+
     // Each child should have parent's colors plus their own
     expect(child1Formatter.getCustomColors()).toEqual({
       'base': 'white',
       'child1': 'red',
     });
-    
+
     expect(child2Formatter.getCustomColors()).toEqual({
       'base': 'white',
       'child2': 'blue',
     });
-    
+
     // Changes to one child shouldn't affect the other
     expect(child1Formatter.getCustomColors()).not.toHaveProperty('child2');
     expect(child2Formatter.getCustomColors()).not.toHaveProperty('child1');
@@ -298,20 +298,20 @@ describe("Logger - Child Loggers", () => {
       customColors: {
         'original': 'green',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const parentFormatterBefore = (parentLogger as any).formatter.getCustomColors();
-    
+
     parentLogger.createChild({
       customColors: {
         'original': 'red',
         'new': 'blue',
       }
     });
-    
+
     const parentFormatterAfter = (parentLogger as any).formatter.getCustomColors();
-    
+
     // Parent's colors should remain unchanged
     expect(parentFormatterAfter).toEqual({ 'original': 'green' });
     expect(parentFormatterBefore).toEqual(parentFormatterAfter);
@@ -326,7 +326,7 @@ describe("Logger - Child Loggers", () => {
         'level3': 'blue',
         'shared': 'white',
       },
-      transports: [{ type: 'custom', instance: mockTransport }]
+      transports: [mockTransport]
     });
 
     const child = root.createChild({
@@ -348,9 +348,9 @@ describe("Logger - Child Loggers", () => {
         'level4': 'magenta', // Add new
       }
     });
-    
+
     const formatter = (greatGrandchild as any).formatter;
-    
+
     expect(formatter.getCustomColors()).toEqual({
       'level1': 'red',       // From root, never overridden
       'level2': 'yellow',    // Overridden by child

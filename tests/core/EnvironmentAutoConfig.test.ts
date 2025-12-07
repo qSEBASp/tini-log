@@ -91,7 +91,7 @@ describe('Environment Detection & Auto-Config', () => {
         json: true,
         asyncMode: true
       });
-      
+
       expect(logger['level']).toBe('error');
       expect(logger['formatter'].isColorized()).toBe(false);
       expect(logger['formatter'].isJson()).toBe(true);
@@ -142,7 +142,7 @@ describe('Environment Detection & Auto-Config', () => {
         json: false,
         asyncMode: false
       });
-      
+
       expect(logger['level']).toBe('debug');
       expect(logger['formatter'].isColorized()).toBe(true);
       expect(logger['formatter'].isJson()).toBe(false);
@@ -236,13 +236,13 @@ describe('Environment Detection & Auto-Config', () => {
     test('development config should produce expected output format', () => {
       process.env.NODE_ENV = 'development';
       const mockTransport = new MockTransport();
-      
+
       const logger = new Logger({
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
-      
+
       logger.info('Test message');
-      
+
       expect(mockTransport.logs).toHaveLength(1);
       const logData = mockTransport.logs[0];
       expect(logData.message).toBe('Test message');
@@ -256,7 +256,7 @@ describe('Environment Detection & Auto-Config', () => {
 
       const logger = new Logger({
         level: 'info', // Override default 'warn' level to test info logging
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.info('Test message');
@@ -271,16 +271,16 @@ describe('Environment Detection & Auto-Config', () => {
     test('production config should have higher default level (warn vs debug)', () => {
       process.env.NODE_ENV = 'production';
       const mockTransport = new MockTransport();
-      
+
       const logger = new Logger({
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
-      
+
       logger.debug('Debug message');  // Should be filtered out
       logger.info('Info message');    // Should be filtered out
       logger.warn('Warning message'); // Should be logged
       logger.error('Error message');  // Should be logged
-      
+
       // Only warn and error should be logged in production (default level is warn)
       expect(mockTransport.logs).toHaveLength(2);
       expect(mockTransport.logs[0].message).toBe('Warning message');
@@ -292,9 +292,9 @@ describe('Environment Detection & Auto-Config', () => {
     test('child logger should inherit parent environment-based settings', () => {
       process.env.NODE_ENV = 'production';
       const parentLogger = new Logger();
-      
+
       const childLogger = parentLogger.createChild();
-      
+
       // Child should inherit parent's configured values
       expect(childLogger['level']).toBe(parentLogger['level']);
       expect(childLogger['formatter'].isJson()).toBe(parentLogger['formatter'].isJson());
@@ -305,13 +305,13 @@ describe('Environment Detection & Auto-Config', () => {
     test('child logger can override inherited environment-based settings', () => {
       process.env.NODE_ENV = 'production';
       const parentLogger = new Logger();
-      
+
       const childLogger = parentLogger.createChild({
         level: 'debug',
         json: false,
         colorize: true
       });
-      
+
       // Child should override parent's configured values
       expect(childLogger['level']).toBe('debug');
       expect(childLogger['formatter'].isJson()).toBe(false);

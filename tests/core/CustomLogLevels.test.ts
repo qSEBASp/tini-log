@@ -27,7 +27,7 @@ describe('Custom Log Levels', () => {
         'verbose': 4,      // Higher than info (3), so will appear
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -52,7 +52,7 @@ describe('Custom Log Levels', () => {
         'verbose': 1,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -71,7 +71,7 @@ describe('Custom Log Levels', () => {
         'custom': 4.5,  // Between warn (4) and error (5)
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -95,7 +95,7 @@ describe('Custom Log Levels', () => {
         'custom': 'magenta',
       },
       transports: [
-        { type: 'console', options: { colorize: true } }
+        createTestTransport()
       ]
     });
 
@@ -110,12 +110,12 @@ describe('Custom Log Levels', () => {
   test('should support async logging with custom levels', async () => {
     logger = new Logger({
       level: 'info',
-      async: true,
+      asyncMode: true,
       customLevels: {
         'async_level': 7,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -137,7 +137,7 @@ describe('Custom Log Levels', () => {
         'parent_custom': 'blue',
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -165,7 +165,7 @@ describe('Custom Log Levels', () => {
         'custom_info': 3,  // Same priority as info
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -185,7 +185,7 @@ describe('Custom Log Levels', () => {
         'lower': 3.5,    // Between info (3) and warn (4), won't appear
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -206,7 +206,7 @@ describe('Custom Log Levels', () => {
         'emergency': 999,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -226,7 +226,7 @@ describe('Custom Log Levels', () => {
         'trace': 0,  // Very low priority
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -244,7 +244,7 @@ describe('Custom Log Levels', () => {
         'ultra_trace': -1,  // Negative priority
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -264,7 +264,7 @@ describe('Custom Log Levels', () => {
         'info': 'magenta',  // Override built-in info color
       },
       transports: [
-        { type: 'console', options: { colorize: true } }
+        createTestTransport()
       ]
     });
 
@@ -282,7 +282,7 @@ describe('Custom Log Levels', () => {
         'nonexistent': 'purple',  // Color for level that doesn't exist
       },
       transports: [
-        { type: 'console', options: { colorize: true } }
+        createTestTransport()
       ]
     });
 
@@ -301,7 +301,7 @@ describe('Custom Log Levels', () => {
         'custom': 4,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -324,7 +324,7 @@ describe('Custom Log Levels', () => {
         'below_threshold': 4,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -342,7 +342,7 @@ describe('Custom Log Levels', () => {
       level: 'info',
       customLevels: {},
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -368,7 +368,7 @@ describe('Custom Log Levels', () => {
         'http.request': 'yellow',
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -385,7 +385,7 @@ describe('Custom Log Levels', () => {
   test('should handle custom levels in async mode', async () => {
     logger = new Logger({
       level: 'info',
-      async: true,
+      asyncMode: true,
       customLevels: {
         'async_custom': 5,
       },
@@ -393,7 +393,7 @@ describe('Custom Log Levels', () => {
         'async_custom': 'magenta',
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -416,7 +416,7 @@ describe('Custom Log Levels', () => {
         'high': 5,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -441,7 +441,7 @@ describe('Custom Log Levels', () => {
         'metric': 4,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -467,7 +467,7 @@ describe('Custom Log Levels', () => {
         'parent_high': 5,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 
@@ -490,7 +490,7 @@ describe('Custom Log Levels', () => {
         'known': 5,
       },
       transports: [
-        { type: 'custom', instance: createTestTransport() }
+        createTestTransport()
       ]
     });
 

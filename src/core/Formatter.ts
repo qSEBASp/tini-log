@@ -60,35 +60,28 @@ export class Formatter {
   }
 
   private formatAsText(data: LogData): string {
-    // preallocate parts to reduce concat cost
-    const parts: string[] = [];
+    let output = "";
 
     if (this.timestamp) {
-      const timestamp = TimeUtil.format(data.timestamp, this.timestampFormat);
-      parts.push(`[${timestamp}] `);
+      output += `[${TimeUtil.format(data.timestamp, this.timestampFormat)}] `;
     }
 
     if (data.prefix) {
-      parts.push(`${data.prefix} `);
+      output += `${data.prefix} `;
     }
 
     let level = data.level.toUpperCase();
-
     if (this.colorize) {
-      // Use custom color if available, otherwise use the level name as color
       const color = this.customColors[data.level] || data.level;
       level = ColorUtil.colorize(level, color);
     }
-
-    parts.push(`[${level}] `);
-
-    parts.push(data.message);
+    output += `[${level}] ${data.message}`;
 
     if (data.metadata) {
-      parts.push(` ${JSON.stringify(data.metadata)}`);
+      output += ` ${JSON.stringify(data.metadata)}`;
     }
 
-    return parts.join("");
+    return output;
   }
 
   setJson(json: boolean): void {

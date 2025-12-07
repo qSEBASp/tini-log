@@ -1,5 +1,5 @@
 import { Logger } from '../../src/core/Logger';
-import { HttpTransport, httpT } from '../../src/transports';
+import { HttpTransport } from '../../src/transports';
 import * as http from 'http';
 import * as https from 'https';
 
@@ -95,7 +95,7 @@ describe('Logger + HttpTransport Integration', () => {
       const logger = new Logger({
         level: 'debug',
         transports: [
-          httpT({
+          new HttpTransport({
             url: 'http://example.com/logs',
             method: 'POST',
             headers: {
