@@ -80,88 +80,46 @@ export class FileTransport implements Transport {
     } else {
       // Write immediately when batching is disabled
       fs.appendFileSync(this.filePath, formattedOutput);
-      this.rotateIfNeeded();
+      if (this.shouldRotate()) {
+        this.rotateFiles();
+      }
     }
   }
 
   async writeAsync(data: LogData, formatter: Formatter): Promise<void> {
-    const output = formatter.format(data);
-    const formattedOutput = output + "\n";
+    const formattedOutput = formatter.format(data) + "\n";
 
     if (this.batchInterval > 0) {
-      // Queue entry if batching is enabled
       this.batchQueue.push({
         data: formattedOutput,
         timestamp: new Date(),
       });
     } else {
-      // Write immediately if batching is disabled
-      await new Promise<void>((resolve, reject) => {
-        fs.appendFile(this.filePath, formattedOutput, (err) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve();
-        });
-      });
-      await this.rotateIfNeededAsync();
+      try {
+        await fs.promises.appendFile(this.filePath, formattedOutput);
+        if (this.shouldRotate()) {
+          await this.rotateFilesAsync();
+        }
+      } catch (err) {
+        throw err;
+      }
     }
   }
 
-  private rotateIfNeeded(): void {
-    if (!fs.existsSync(this.filePath)) {
-      return;
-    }
-
+  private shouldRotate(): boolean {
+    if (!fs.existsSync(this.filePath)) return false;
     try {
-      const stats = fs.statSync(this.filePath);
-      if (stats.size >= this.maxSize) {
-        this.rotateFiles();
-      }
-    } catch (error) {
-      console.error("Error checking file size for rotation:", error);
-    }
-  }
-
-  private async rotateIfNeededAsync(): Promise<void> {
-    if (!fs.existsSync(this.filePath)) {
-      return;
-    }
-
-    try {
-      const stats = fs.statSync(this.filePath);
-      if (stats.size >= this.maxSize) {
-        await this.rotateFilesAsync();
-      }
-    } catch (error) {
-      console.error("Error during rotation check:", error);
+      return fs.statSync(this.filePath).size >= this.maxSize;
+    } catch {
+      return false;
     }
   }
 
   private rotateFiles(): void {
     try {
-      let currentContent = "";
-      if (fs.existsSync(this.filePath)) {
-        currentContent = fs.readFileSync(this.filePath, "utf8");
-      }
-
-      // Generate rotated file path
-      let rotatedFilePath = this.getRotatedFilePath();
-
-      // Write compressed content if enabled
-      if (this.compression !== "none" && this.compressOldFiles) {
-        rotatedFilePath = `${rotatedFilePath}.${this.compression === "gzip" ? "gz" : "zz"}`;
-        const compressedData =
-          this.compression === "gzip"
-            ? zlib.gzipSync(currentContent)
-            : zlib.deflateSync(currentContent);
-        fs.writeFileSync(rotatedFilePath, compressedData);
-      } else {
-        fs.writeFileSync(rotatedFilePath, currentContent, "utf8");
-      }
-
-      fs.writeFileSync(this.filePath, "", "utf8");
+      if (!fs.existsSync(this.filePath)) return;
+      const currentContent = fs.readFileSync(this.filePath, "utf8");
+      this.performRotation(currentContent, fs.writeFileSync);
       this.cleanupOldFiles();
     } catch (error) {
       console.error("Error during file rotation:", error);
@@ -170,208 +128,78 @@ export class FileTransport implements Transport {
 
   private async rotateFilesAsync(): Promise<void> {
     try {
-      // Read current file content asynchronously
-      let currentContent = "";
-      if (fs.existsSync(this.filePath)) {
-        currentContent = await fs.promises.readFile(this.filePath, "utf8");
-      }
-
-      // Generate rotated file path
-      let rotatedFilePath = this.getRotatedFilePath();
-
-      // Write compressed content if enabled
-      if (this.compression !== "none" && this.compressOldFiles) {
-        rotatedFilePath = `${rotatedFilePath}.${this.compression === "gzip" ? "gz" : "zz"}`;
-        const compressedData =
-          this.compression === "gzip"
-            ? await compressGzip(currentContent)
-            : await compressDeflate(currentContent);
-        await fs.promises.writeFile(rotatedFilePath, compressedData);
-      } else {
-        await fs.promises.writeFile(rotatedFilePath, currentContent, "utf8");
-      }
-
-      // create new empty current file
-      await fs.promises.writeFile(this.filePath, "", "utf8");
-
-      // cleanup old files
+      if (!fs.existsSync(this.filePath)) return;
+      const currentContent = await fs.promises.readFile(this.filePath, "utf8");
+      await this.performRotationAsync(currentContent);
       await this.cleanupOldFilesAsync();
     } catch (error) {
       console.error("Error during async file rotation:", error);
     }
   }
 
+  private performRotation(content: string, writeFn: (path: string, data: any, enc?: any) => void): void {
+    let rotatedFilePath = this.getRotatedFilePath();
+    if (this.compression !== "none" && this.compressOldFiles) {
+      rotatedFilePath += `.${this.compression === "gzip" ? "gz" : "zz"}`;
+      const compressed = this.compression === "gzip" ? zlib.gzipSync(content) : zlib.deflateSync(content);
+      writeFn(rotatedFilePath, compressed);
+    } else {
+      writeFn(rotatedFilePath, content, "utf8");
+    }
+    writeFn(this.filePath, "", "utf8");
+  }
+
+  private async performRotationAsync(content: string): Promise<void> {
+    let rotatedFilePath = this.getRotatedFilePath();
+    if (this.compression !== "none" && this.compressOldFiles) {
+      rotatedFilePath += `.${this.compression === "gzip" ? "gz" : "zz"}`;
+      const compressed = this.compression === "gzip" ? await compressGzip(content) : await compressDeflate(content);
+      await fs.promises.writeFile(rotatedFilePath, compressed);
+    } else {
+      await fs.promises.writeFile(rotatedFilePath, content, "utf8");
+    }
+    await fs.promises.writeFile(this.filePath, "", "utf8");
+  }
+
   private getRotatedFilePath(): string {
     const dir = path.dirname(this.filePath);
-    const baseName = path.basename(this.filePath);
-    const timestamp = Date.now();
+    return path.join(dir, `${path.basename(this.filePath)}.${Date.now()}`);
+  }
 
-    return path.join(dir, `${baseName}.${timestamp}`);
+  private filterRotatedFiles(files: string[], baseName: string): string[] {
+    return files
+      .filter(f => f !== baseName && f.startsWith(baseName + "."))
+      .sort((a, b) => {
+        const getTs = (s: string) => parseInt(s.slice(baseName.length + 1).split(".")[0] ?? "0");
+        return getTs(b) - getTs(a);
+      });
   }
 
   private cleanupOldFiles(): void {
+    const dir = path.dirname(this.filePath);
+    const baseName = path.basename(this.filePath);
     try {
-      const dir = path.dirname(this.filePath);
-      const baseName = path.basename(this.filePath);
-
-      try {
-        fs.accessSync(dir, fs.constants.F_OK);
-      } catch {
-        return; // if dir does not exist there nothing to clean up
-      }
-
-      // fetch all files in directory
-      const allFiles = fs.readdirSync(dir);
-
-      // Filter rotated files: basename.timestamp[.compression]
-      const rotatedFiles = allFiles
-        .filter((file) => {
-          if (!file || file === baseName) {
-            return false;
-          }
-
-          // Check if file matches basename.timestamp[.compression]
-          const pattern = new RegExp(
-            `^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+(\\.gz|\\.zz)?$`,
-          );
-          return pattern.test(file);
-        })
-        .sort((a, b) => {
-          // Extract timestamps and sort newest first
-          const timestampA = parseInt(
-            a.slice(baseName.length + 1).split(".")[0] || "0",
-          );
-          const timestampB = parseInt(
-            b.slice(baseName.length + 1).split(".")[0] || "0",
-          );
-          return timestampB - timestampA;
-        });
-
-      // Keep only maxFiles rotated files (remove older ones)
-      for (let i = this.maxFiles; i < rotatedFiles.length; i++) {
-        const file = rotatedFiles[i];
+      const files = fs.readdirSync(dir);
+      const rotated = this.filterRotatedFiles(files, baseName);
+      for (let i = this.maxFiles; i < rotated.length; i++) {
+        const file = rotated[i];
         if (file) {
-          // Validate filename for security
-          if (
-            file.includes("../") ||
-            file.includes("..\\") ||
-            file.startsWith("..")
-          ) {
-            continue;
-          }
-
-          const fileToDelete = path.join(dir, file);
-          const resolvedPath = path.resolve(fileToDelete);
-          const resolvedDir = path.resolve(dir);
-
-          if (
-            !resolvedPath.startsWith(resolvedDir + path.sep) &&
-            resolvedPath !== resolvedDir
-          ) {
-            continue;
-          }
-
-          try {
-            fs.unlinkSync(fileToDelete);
-          } catch (error) {
-            console.error(
-              `Failed to delete old log file ${fileToDelete}:`,
-              error,
-            );
-          }
+          try { fs.unlinkSync(path.join(dir, file)); } catch { }
         }
       }
-    } catch (error) {
-      console.error("Error during cleanup of old files:", error);
-    }
+    } catch { }
   }
 
   private async cleanupOldFilesAsync(): Promise<void> {
+    const dir = path.dirname(this.filePath);
+    const baseName = path.basename(this.filePath);
     try {
-      const dir = path.dirname(this.filePath);
-      const baseName = path.basename(this.filePath);
-
-      // Check if directory exists before attempting to read it
-      try {
-        await fs.promises.access(dir, fs.constants.F_OK);
-      } catch {
-        return;
-      }
-
-      // Get all files in directory
-      const allFiles = await fs.promises.readdir(dir);
-
-      // Filter rotated files: basename.timestamp[.compression]
-      const rotatedFiles = allFiles
-        .filter((file) => {
-          if (!file || file === baseName) {
-            return false; // Skip current file
-          }
-
-          // Check if file matches basename.timestamp[.compression]
-          const pattern = new RegExp(
-            `^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+(\\.gz|\\.zz)?$`,
-          );
-          return pattern.test(file);
-        })
-        .sort((a, b) => {
-          // Extract timestamps and sort newest first
-          const timestampA = parseInt(
-            a.slice(baseName.length + 1).split(".")[0] || "0",
-          );
-          const timestampB = parseInt(
-            b.slice(baseName.length + 1).split(".")[0] || "0",
-          );
-          return timestampB - timestampA;
-        });
-
-      // Keep only maxFiles rotated files (remove older ones)
-      const deletePromises = [];
-
-      for (let i = this.maxFiles; i < rotatedFiles.length; i++) {
-        const file = rotatedFiles[i];
-        if (file) {
-          // Validate filename for security
-          if (
-            file.includes("../") ||
-            file.includes("..\\") ||
-            file.startsWith("..")
-          ) {
-            continue;
-          }
-
-          const fileToDelete = path.join(dir, file);
-          const resolvedPath = path.resolve(fileToDelete);
-          const resolvedDir = path.resolve(dir);
-
-          if (
-            !resolvedPath.startsWith(resolvedDir + path.sep) &&
-            resolvedPath !== resolvedDir
-          ) {
-            continue;
-          }
-
-          // Check if file exists before attempting to delete
-          deletePromises.push(
-            fs.promises
-              .access(fileToDelete, fs.constants.F_OK)
-              .then(() => fs.promises.unlink(fileToDelete))
-              .catch((error) => {
-                if (error.code !== "ENOENT") {
-                  console.error(
-                    `Failed to delete old log file ${fileToDelete}:`,
-                    error,
-                  );
-                }
-              }),
-          );
-        }
-      }
-
-      await Promise.all(deletePromises);
-    } catch (error) {
-      console.error("Error during async cleanup of old files:", error);
-    }
+      const files = await fs.promises.readdir(dir);
+      const rotated = this.filterRotatedFiles(files, baseName);
+      await Promise.all(rotated.slice(this.maxFiles).map(f =>
+        fs.promises.unlink(path.join(dir, f)).catch(() => { })
+      ));
+    } catch { }
   }
 
   private startBatching(): void {
@@ -408,7 +236,9 @@ export class FileTransport implements Transport {
       });
 
       // Rotate if needed after writing
-      await this.rotateIfNeededAsync();
+      if (this.shouldRotate()) {
+        await this.rotateFilesAsync();
+      }
     } catch (error) {
       console.error("Error processing log batch:", error);
       // On error, restore entries for retry (prepend to preserve order)

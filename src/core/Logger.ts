@@ -173,60 +173,22 @@ export class Logger {
   ): Transport[] {
     const initializedTransports: Transport[] = [];
     for (const transportConfig of transportConfigs) {
-      // Check if it's a legacy config object
-      if (this.isLegacyTransportOptions(transportConfig)) {
-        const transportOption = transportConfig as LegacyTransportOptions;
-        if (transportOption.type === "console") {
-          const consoleTransport = new ConsoleTransport({
-            colorize: transportOption.options?.colorize ?? defaultColorize,
-          });
-          initializedTransports.push(consoleTransport);
-        } else if (transportOption.type === "file") {
-          if (transportOption.options?.path) {
-            const fileOptions: FileTransportOptions = {
-              path: transportOption.options.path,
-            };
-            if (transportOption.options.maxSize !== undefined) {
-              fileOptions.maxSize = transportOption.options.maxSize;
-            }
-            if (transportOption.options.maxFiles !== undefined) {
-              fileOptions.maxFiles = transportOption.options.maxFiles;
-            }
-            if (transportOption.options.compression !== undefined) {
-              fileOptions.compression = transportOption.options.compression;
-            }
-            if (transportOption.options.batchInterval !== undefined) {
-              fileOptions.batchInterval = transportOption.options.batchInterval;
-            }
-            if (transportOption.options.compressOldFiles !== undefined) {
-              fileOptions.compressOldFiles = transportOption.options.compressOldFiles;
-            }
-            const fileTransport = new FileTransport(fileOptions);
-            initializedTransports.push(fileTransport);
-          }
-        } else if (transportOption.type === "custom") {
-          if (transportOption.instance) {
-            initializedTransports.push(transportOption.instance);
-          }
-        }
-      }
-      // Validate transport objects that implement the Transport interface
-      else if (this.isTransport(transportConfig)) {
+      if (this.isTransport(transportConfig)) {
         initializedTransports.push(transportConfig as Transport);
       }
     }
     return initializedTransports;
   }
 
-  private isLegacyTransportOptions(
-    config: TransportConfig,
-  ): config is LegacyTransportOptions {
-    return typeof config === "object" && config !== null && "type" in config;
+  private isTransport(transport: any): transport is Transport {
+    return (
+      typeof transport === "object" &&
+      transport !== null &&
+      typeof (transport as any).write === "function"
+    );
   }
 
-  private isTransport(obj: any): obj is Transport {
-    return obj && typeof obj.write === "function" && (typeof obj.writeAsync === "function" || obj.writeAsync === undefined);
-  }
+
 
   private shouldLog(level: LogLevel): boolean {
     // Get the priority of the current logger level
@@ -255,75 +217,20 @@ export class Logger {
     message: string,
     metadata?: Record<string, any>,
   ): void {
-    if (!this.shouldLog(level)) {
-      return;
-    }
-    // Don't log silent level logs at all
-    if (level === "silent") {
+    if (!this.shouldLog(level) || level === "silent") {
       return;
     }
 
-    if (this.asyncMode) {
-      // For async mode, we need to call the direct method
-      this.logAsyncDirect(level, message, metadata);
-    } else {
-      // Only create timestamp after confirming log should be written
-      const timestamp = new Date();
-
-      // optimize metadata merging
-      let finalMetadata: Record<string, any> | undefined;
-      if (this.context && Object.keys(this.context).length > 0) {
-        if (metadata) {
-          finalMetadata = { ...this.context, ...metadata };
-        } else {
-          finalMetadata = this.context;
-        }
-      } else if (metadata) {
-        finalMetadata = metadata;
-      }
-
-      // Only add metadata if it's not empty after merging
-      const logData: LogData = {
-        level,
-        message,
-        timestamp,
-        metadata:
-          finalMetadata && Object.keys(finalMetadata).length > 0
-            ? finalMetadata
-            : undefined,
-        prefix: this.prefix,
-      };
-
-      for (const transport of this.transports) {
-        transport.write(logData, this.formatter);
-      }
-    }
-  }
-
-  private logAsyncDirect(
-    level: LogLevel,
-    message: string,
-    metadata?: Record<string, any>,
-  ): void {
-    if (!this.shouldLog(level)) {
-      return;
-    }
-    // Donot log silent level logs at all
-    if (level === "silent") {
-      return;
-    }
-
-    // Timestamp only on confirmed log
     const timestamp = new Date();
 
-    // optimize metadata merging
+    // Optimize metadata merging
     let finalMetadata: Record<string, any> | undefined;
-    if (this.context && Object.keys(this.context).length > 0) {
-      if (metadata) {
-        finalMetadata = { ...this.context, ...metadata };
-      } else {
-        finalMetadata = this.context;
-      }
+    const hasContext = this.context && Object.keys(this.context).length > 0;
+
+    if (hasContext && metadata) {
+      finalMetadata = { ...this.context, ...metadata };
+    } else if (hasContext) {
+      finalMetadata = this.context;
     } else if (metadata) {
       finalMetadata = metadata;
     }
@@ -340,15 +247,21 @@ export class Logger {
       prefix: this.prefix,
     };
 
-    for (const transport of this.transports) {
-      if (transport.writeAsync) {
-        transport.writeAsync(logData, this.formatter).catch((error) => {
-          console.error("Error during async logging:", error);
-        });
-      } else {
-        setImmediate(() => {
-          transport.write(logData, this.formatter);
-        });
+    if (this.asyncMode) {
+      for (const transport of this.transports) {
+        if (transport.writeAsync) {
+          transport.writeAsync(logData, this.formatter).catch((error) => {
+            console.error("Error during async logging:", error);
+          });
+        } else {
+          setImmediate(() => {
+            transport.write(logData, this.formatter);
+          });
+        }
+      }
+    } else {
+      for (const transport of this.transports) {
+        transport.write(logData, this.formatter);
       }
     }
   }

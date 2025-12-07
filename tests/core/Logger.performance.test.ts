@@ -53,7 +53,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should not create timestamp when log is filtered out by level', () => {
       logger = new Logger({
         level: 'warn', // Only warn and above
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       // Spy on Date constructor to detect timestamp creation
@@ -64,7 +64,7 @@ describe('Logger - Performance Optimizations', () => {
 
       // Verify no logs were written
       expect(mockTransport.logs.length).toBe(0);
-      
+
       // Clean up spy
       dateConstructorSpy.mockRestore();
     });
@@ -72,7 +72,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should create timestamp only when log passes level filter', () => {
       logger = new Logger({
         level: 'info',
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       // This should pass the filter
@@ -86,7 +86,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should not process metadata when log is filtered', () => {
       logger = new Logger({
         level: 'error',
-        transports: [{ type: 'custom', instance: mockTransport }],
+        transports: [mockTransport],
         context: { globalContext: 'value' }
       });
 
@@ -104,7 +104,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should merge context only for logs that pass filter', () => {
       logger = new Logger({
         level: 'warn',
-        transports: [{ type: 'custom', instance: mockTransport }],
+        transports: [mockTransport],
         context: { globalKey: 'globalValue' }
       });
 
@@ -127,7 +127,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: false,
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.info('Sync message');
@@ -141,7 +141,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.info('Async message');
@@ -162,7 +162,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: errorTransport }]
+        transports: [errorTransport as any]
       });
 
       // Should not throw
@@ -188,7 +188,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: syncOnlyTransport }]
+        transports: [syncOnlyTransport as any]
       });
 
       logger.info('Message for sync-only transport');
@@ -204,7 +204,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should not log silent level messages at all', () => {
       logger = new Logger({
         level: 'debug', // Even with lowest level
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.logWithLevel('silent', 'This should never appear');
@@ -217,7 +217,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should skip all processing for silent level', () => {
       logger = new Logger({
         level: 'debug',
-        transports: [{ type: 'custom', instance: mockTransport }],
+        transports: [mockTransport],
         context: { expensive: 'context' }
       });
 
@@ -232,7 +232,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should exit early when shouldLog returns false', () => {
       logger = new Logger({
         level: 'error', // High threshold
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       // These should all exit early
@@ -254,7 +254,7 @@ describe('Logger - Performance Optimizations', () => {
 
       logger = new Logger({
         level: 'error',
-        transports: [{ type: 'custom', instance: spyTransport }]
+        transports: [spyTransport as any]
       });
 
       // These should not reach the transport
@@ -268,7 +268,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should process only logs that pass the filter', () => {
       logger = new Logger({
         level: 'warn',
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.debug('Filtered 1');
@@ -287,7 +287,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: false,
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       const iterations = 1000;
@@ -307,7 +307,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should efficiently filter out logs below threshold', () => {
       logger = new Logger({
         level: 'error',
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       const iterations = 10000;
@@ -332,7 +332,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       const syncLogs = 100;
@@ -355,7 +355,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.info('Async message');
@@ -369,12 +369,12 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'warn',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       // This should be filtered before timestamp creation
       logger.info('Filtered message');
-      
+
       // This should create timestamp
       logger.warn('Passed message');
 
@@ -388,7 +388,7 @@ describe('Logger - Performance Optimizations', () => {
       logger = new Logger({
         level: 'info',
         asyncMode: true,
-        transports: [{ type: 'custom', instance: mockTransport }],
+        transports: [mockTransport],
         context: { global: 'context' }
       });
 
@@ -406,7 +406,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should maintain backward compatibility with existing tests', () => {
       logger = new Logger({
         level: 'info',
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.info('Test message');
@@ -419,7 +419,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should handle empty metadata correctly', () => {
       logger = new Logger({
         level: 'info',
-        transports: [{ type: 'custom', instance: mockTransport }],
+        transports: [mockTransport],
         context: {}
       });
 
@@ -431,7 +431,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should handle undefined metadata correctly', () => {
       logger = new Logger({
         level: 'info',
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.info('Message');
@@ -446,7 +446,7 @@ describe('Logger - Performance Optimizations', () => {
         customLevels: {
           'custom': 4
         },
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.logWithLevel('custom', 'Custom message');
@@ -458,7 +458,7 @@ describe('Logger - Performance Optimizations', () => {
     test('should respect level changes during runtime', () => {
       logger = new Logger({
         level: 'info',
-        transports: [{ type: 'custom', instance: mockTransport }]
+        transports: [mockTransport]
       });
 
       logger.debug('Should not appear');
@@ -479,8 +479,8 @@ describe('Logger - Performance Optimizations', () => {
         level: 'info',
         asyncMode: false,
         transports: [
-          { type: 'custom', instance: transport1 },
-          { type: 'custom', instance: transport2 }
+          transport1,
+          transport2
         ]
       });
 
@@ -498,8 +498,8 @@ describe('Logger - Performance Optimizations', () => {
         level: 'info',
         asyncMode: true,
         transports: [
-          { type: 'custom', instance: transport1 },
-          { type: 'custom', instance: transport2 }
+          transport1,
+          transport2
         ]
       });
 

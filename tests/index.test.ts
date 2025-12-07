@@ -1,5 +1,5 @@
 import * as zario from '../src/index';
-import { Logger, ConsoleTransport, FileTransport, HttpTransport, consoleT, fileT, httpT } from '../src/index';
+import { Logger, ConsoleTransport, FileTransport, HttpTransport } from '../src/index';
 
 describe('Package Exports', () => {
   describe('Main Exports', () => {
@@ -22,21 +22,6 @@ describe('Package Exports', () => {
       expect(HttpTransport).toBeDefined();
       expect(typeof HttpTransport).toBe('function');
     });
-
-    it('should export consoleT factory function', () => {
-      expect(consoleT).toBeDefined();
-      expect(typeof consoleT).toBe('function');
-    });
-
-    it('should export fileT factory function', () => {
-      expect(fileT).toBeDefined();
-      expect(typeof fileT).toBe('function');
-    });
-
-    it('should export httpT factory function', () => {
-      expect(httpT).toBeDefined();
-      expect(typeof httpT).toBe('function');
-    });
   });
 
   describe('Namespace Exports', () => {
@@ -47,11 +32,7 @@ describe('Package Exports', () => {
       expect(zario.HttpTransport).toBeDefined();
     });
 
-    it('should export all factory functions via namespace', () => {
-      expect(zario.consoleT).toBeDefined();
-      expect(zario.fileT).toBeDefined();
-      expect(zario.httpT).toBeDefined();
-    });
+
   });
 
   describe('Transport Instantiation', () => {
@@ -60,10 +41,7 @@ describe('Package Exports', () => {
       expect(transport).toBeInstanceOf(HttpTransport);
     });
 
-    it('should create HttpTransport via factory export', () => {
-      const transport = httpT({ url: 'http://example.com/logs' });
-      expect(transport).toBeInstanceOf(HttpTransport);
-    });
+
 
     it('should create HttpTransport via namespace export', () => {
       const transport = new zario.HttpTransport({ url: 'http://example.com/logs' });
@@ -79,20 +57,11 @@ describe('Package Exports', () => {
           new HttpTransport({ url: 'http://example.com/logs', retries: 0 })
         ]
       });
-      
+
       expect(logger).toBeInstanceOf(Logger);
     });
 
-    it('should work with Logger using factory functions', () => {
-      const logger = new Logger({
-        level: 'info',
-        transports: [
-          httpT({ url: 'http://example.com/logs', retries: 0 })
-        ]
-      });
-      
-      expect(logger).toBeInstanceOf(Logger);
-    });
+
 
     it('should work with Logger using namespace imports', () => {
       const logger = new zario.Logger({
@@ -101,7 +70,7 @@ describe('Package Exports', () => {
           new zario.HttpTransport({ url: 'http://example.com/logs', retries: 0 })
         ]
       });
-      
+
       expect(logger).toBeInstanceOf(zario.Logger);
     });
   });

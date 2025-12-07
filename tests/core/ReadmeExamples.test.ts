@@ -36,7 +36,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           verbose: "cyan",
           critical: "brightRed",
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       // Using custom levels.
@@ -63,7 +63,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           verbose: 1,
           critical: 7,
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       logger.logWithLevel("verbose", "Should not appear"); // priority 1 < 3
@@ -86,7 +86,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           verbose: 1,
           critical: 7,
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       // This will NOT be shown (verbose has priority 1 < critical threshold 7).
@@ -108,7 +108,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           verbose: 1,
           critical: 7,
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       highLevelLogger.logWithLevel("success", "Should not appear"); // 6 < 7
@@ -129,7 +129,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
         customColors: {
           parent_custom: "blue",
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       // Child will inherit parent's custom levels and can add its own.
@@ -158,7 +158,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
         customLevels: {
           parent_custom: 6,
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       const childLogger = parentLogger.createChild({
@@ -191,7 +191,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           warning: "yellow",
           alert: "red",
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       logger.logWithLevel("success", "Success message");
@@ -210,7 +210,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           custom2: 6,
         },
         // No customColors specified
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       expect(() => {
@@ -229,7 +229,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
         customLevels: {
           custom_info: 3, // Same as info
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       logger.info("Built-in info");
@@ -244,7 +244,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
         customLevels: {
           between_info_warn: 3.5, // Between info (3) and warn (4)
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       logger.logWithLevel("between_info_warn", "Between message");
@@ -260,7 +260,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           critical: 100,
           ultra_critical: 200,
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       logger.logWithLevel("critical", "Critical message");
@@ -276,7 +276,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           trace: -1,
           ultra_verbose: -10,
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       logger.logWithLevel("trace", "Should not appear"); // -1 < 3
@@ -297,7 +297,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
           parent1: "blue",
           parent2: "green",
         },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       const child = parent.createChild({
@@ -319,7 +319,7 @@ describe("README.md - Custom Levels & Colors Examples", () => {
     test("should handle multiple levels of inheritance with mergedCColors", () => {
       const level1 = new Logger({
         customColors: { l1: "c1" },
-        transports: [{ type: "custom", instance: createTestTransport() }],
+        transports: [createTestTransport()],
       });
 
       const level2 = level1.createChild({
